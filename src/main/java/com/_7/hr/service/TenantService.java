@@ -1,7 +1,7 @@
 package com._7.hr.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +28,7 @@ public class TenantService {
         }
 
         Tenant newTenant = new Tenant();
-
+        newTenant.setTenantId(UUID.randomUUID().toString());
         newTenant.setCompanyName(tenantCreateRequest.getCompanyName());
         newTenant.setCompanyType(tenantCreateRequest.getCompanyType());
         newTenant.setCompanyContactEmail(tenantCreateRequest.getCompanyContactEmail());
@@ -43,6 +43,7 @@ public class TenantService {
         newTenant.setUpdatedAt(LocalDateTime.now());
 
         Tenant savedTenant = tenantRepository.save(newTenant);
+        // String tenantId = savedTenant.getTenantId();
         return mapTenantToResponse(savedTenant);
     }
 

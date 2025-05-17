@@ -19,13 +19,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Tenant {
-    // basic information
     @Id
     @GeneratedValue
-    private Long internalId;
+    private Long id;
 
     @Property("tenantId")
-    @GeneratedValue(UUIDStringGenerator.class)
     private String tenantId;
 
     @Property("companyName")
