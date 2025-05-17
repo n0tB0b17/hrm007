@@ -21,7 +21,7 @@ public class TenantService {
     }
 
     @Transactional
-    public TenantResponse RegisterTenant(TenantCreateRequest tenantCreateRequest) {
+    public TenantResponse registerTenant(TenantCreateRequest tenantCreateRequest) {
         if (tenantRepository.existsByCompanyName(tenantCreateRequest.getCompanyName())) {
             throw new TenantAlreadyExistsException(
                     "Tenant already exist with name:> " + tenantCreateRequest.getCompanyName());
