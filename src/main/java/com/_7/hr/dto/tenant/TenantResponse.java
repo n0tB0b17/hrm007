@@ -11,6 +11,7 @@ public class TenantResponse {
     private String companyType;
     private String companyContactEmail;
     private String companyContactNumber;
+    private String status;
     private String logoURL;
     private String primaryColor;
     private String secondaryColor;
