@@ -1,5 +1,6 @@
 package com._7.hr.domain.employee;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -41,7 +42,7 @@ public class Employee {
     private String jobTitle;
 
     @Property("hireDate")
-    private String hireDate;
+    private LocalDate hireDate;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -54,7 +55,7 @@ public class Employee {
     @EqualsAndHashCode.Exclude
     private Tenant tenant;
 
-    public Employee(String firstName, String lastName, String email, String jobTitle, String hireDate) {
+    public Employee(String firstName, String lastName, String email, String jobTitle, LocalDate hireDate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
