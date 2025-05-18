@@ -9,14 +9,12 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Node("Tenant")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Tenant {
     @Id
     @GeneratedValue
@@ -55,4 +53,16 @@ public class Tenant {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public Tenant(String companyName, String companyType, String companyContactEmail, String companyContactNumber,
+            String status, String logoURL, String primaryColor, String secondaryColor) {
+        this.companyName = companyName;
+        this.companyType = companyType;
+        this.companyContactEmail = companyContactEmail;
+        this.companyContactNumber = companyContactNumber;
+        this.status = status;
+        this.logoURL = logoURL;
+        this.primaryColor = primaryColor;
+        this.secondaryColor = secondaryColor;
+    }
 }
