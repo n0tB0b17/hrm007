@@ -1,14 +1,19 @@
 package com._7.hr.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com._7.hr.domain.tenant.Tenant;
 import com._7.hr.dto.tenant.TenantCreateRequest;
 import com._7.hr.dto.tenant.TenantResponse;
+import com._7.hr.dto.tenant.TenantUpdateRequest;
+import com._7.hr.exception.ResourceNotFoundException;
 import com._7.hr.exception.TenantAlreadyExistsException;
 import com._7.hr.repository.TenantRepository;
 
@@ -43,8 +48,73 @@ public class TenantService {
         newTenant.setUpdatedAt(LocalDateTime.now());
 
         Tenant savedTenant = tenantRepository.save(newTenant);
-        // String tenantId = savedTenant.getTenantId();
         return mapTenantToResponse(savedTenant);
+    }
+
+    @Transactional(readOnly = true)
+    public TenantResponse getTenantByID(String tenantId) {
+        Tenant tenant = tenantRepository.findByTenantId(tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found with id" + tenantId));
+
+        return mapTenantToResponse(tenant);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TenantResponse> getAllTenants() {
+        List<Tenant> tenants = tenantRepository.findAll();
+        return tenants.stream()
+                .map(this::mapTenantToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public TenantResponse updateTenant(String tenantId, TenantUpdateRequest tenantUpdateRequest) {
+        Tenant tenant = tenantRepository.findByTenantId(tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found with id" + tenantId));
+
+        if (StringUtils.hasText(tenantUpdateRequest.getCompanyName()) &&
+                !tenant.getCompanyName().equalsIgnoreCase(tenantUpdateRequest.getCompanyName())) {
+            if (tenantRepository.existsByCompanyNameAndTenantIdNot(tenantUpdateRequest.getCompanyName(), tenantId)) {
+                throw new TenantAlreadyExistsException("Tenant already exists " + tenantId);
+            }
+            tenant.setCompanyName(tenantUpdateRequest.getCompanyName());
+        }
+
+        if (StringUtils.hasText(tenantUpdateRequest.getCompanyType())) {
+            tenant.setCompanyType(tenantUpdateRequest.getCompanyType());
+        }
+        if (StringUtils.hasText(tenantUpdateRequest.getStatus())) {
+            tenant.setStatus(tenantUpdateRequest.getStatus());
+        }
+        if (StringUtils.hasText(tenantUpdateRequest.getCompanyContactEmail())) {
+            tenant.setCompanyContactEmail(tenantUpdateRequest.getCompanyContactEmail());
+        }
+        if (StringUtils.hasText(tenantUpdateRequest.getCompanyContactNumber())) {
+            tenant.setCompanyContactNumber(tenantUpdateRequest.getCompanyContactNumber());
+        }
+        if (StringUtils.hasText(tenantUpdateRequest.getLogoURL())) {
+            tenant.setLogoURL(tenantUpdateRequest.getLogoURL());
+        }
+        if (StringUtils.hasText(tenantUpdateRequest.getPrimaryColor())) {
+            tenant.setPrimaryColor(tenantUpdateRequest.getPrimaryColor());
+        }
+        if (StringUtils.hasText(tenantUpdateRequest.getSecondaryColor())) {
+            tenant.setSecondaryColor(tenantUpdateRequest.getSecondaryColor());
+        }
+
+        tenant.setUpdatedAt(LocalDateTime.now());
+
+        Tenant savedTenant = tenantRepository.save(tenant);
+        return mapTenantToResponse(savedTenant);
+    }
+
+    @Transactional
+    public void deleteTenant(String tenantId) {
+        if (!tenantRepository.findByTenantId(tenantId).isPresent()) {
+            throw new ResourceNotFoundException("Tenant not found for given id: " + tenantId);
+        }
+
+        tenantRepository.deleteByTenantId(tenantId);
     }
 
     private TenantResponse mapTenantToResponse(Tenant tenant) {
