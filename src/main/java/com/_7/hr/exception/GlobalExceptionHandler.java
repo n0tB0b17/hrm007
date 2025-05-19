@@ -74,6 +74,19 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
         }
 
+        @ExceptionHandler(DepartmentAlreadyExistsException.class)
+        public ResponseEntity<ErrorDetails> handleDepartmentAlreadyExistsException(
+                        DepartmentAlreadyExistsException ex,
+                        WebRequest req) {
+                ErrorDetails errorDetails = new ErrorDetails(
+                                LocalDateTime.now(),
+                                HttpStatus.CONFLICT.value(),
+                                req.getDescription(false),
+                                ex.getMessage());
+
+                return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+        }
+
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ErrorDetails> handleGlobalException(
                         Exception ex,
