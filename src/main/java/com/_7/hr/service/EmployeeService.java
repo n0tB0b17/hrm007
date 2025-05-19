@@ -1,7 +1,9 @@
 package com._7.hr.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +51,32 @@ public class EmployeeService {
 
         Employee savedEmployee = employeeRepository.save(newEmployee);
         return this.mapToEmployeeResponse(savedEmployee);
+    }
+
+    @Transactional(readOnly = true)
+    public List<EmployeeResponse> getAllEmployee(String tenantId) {
+        List<EmployeeResponse> employeeResponses = employeeRepository.findAllByTenantId(tenantId)
+                .stream().map(this::mapToEmployeeResponse)
+                .collect(Collectors.toList());
+        return employeeResponses;
+    }
+
+    @Transactional(readOnly = true)
+    public EmployeeResponse getEmployeeByID(String tenantId, String employeeId) {
+        Employee employee = employeeRepository.findByEmployeeIdAndTenantId(employeeId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found for given id: " + employeeId));
+
+        return mapToEmployeeResponse(employee);
+    }
+
+    @Transactional
+    public void deleteEmployeeByID(String tenantId, String employeeId) {
+        employeeRepository.deleteByEmployeeIdAndTenantId(employeeId, tenantId);
+    }
+
+    @Transactional
+    public EmployeeResponse updateEmployeeById(String tenantId, String employeeId) {
+        return null;
     }
 
     private EmployeeResponse mapToEmployeeResponse(Employee employee) {

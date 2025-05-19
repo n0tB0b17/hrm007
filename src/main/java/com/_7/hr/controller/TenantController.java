@@ -54,6 +54,7 @@ public class TenantController {
 
     @DeleteMapping("/{tenantId}")
     public ResponseEntity<Void> deleteTenantById(@PathVariable String tenantId) {
+        tenantService.deleteTenant(tenantId);
         return ResponseEntity.noContent().build();
     }
 }

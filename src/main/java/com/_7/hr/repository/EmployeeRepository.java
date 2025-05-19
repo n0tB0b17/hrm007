@@ -11,10 +11,10 @@ import com._7.hr.domain.employee.Employee;
 
 @Repository
 public interface EmployeeRepository extends Neo4jRepository<Employee, Long> {
-    @Query("MATCH (e: Employee {employeeId: $employeeId})-[:WORKS_FOR]->(t:Tenant {tenantId: $tenantId}) RETURN e, COLLECT(t) AS tenants")
+    @Query("MATCH (e: Employee {employeeId: $employeeId})-[rel:WORKS_FOR]->(t:Tenant {tenantId: $tenantId}) RETURN e,rel,t")
     Optional<Employee> findByEmployeeIdAndTenantId(String employeeId, String tenantId);
 
-    @Query("MATCH (e: Employee)-[:WORKS_FOR]->(t: Tenant {tenantId: $tenantId}) RETURN e, COLLECT(t) AS tenants")
+    @Query("MATCH (e: Employee)-[rel:WORKS_FOR]->(t: Tenant {tenantId: $tenantId}) RETURN e,rel,t")
     List<Employee> findAllByTenantId(String tenantId);
 
     @Query("MATCH (e: Employee {email: $email})-[:WORKS_FOR]->(t:Tenant {tenantId: $tenantId}) RETURN COUNT(e) > 0")
