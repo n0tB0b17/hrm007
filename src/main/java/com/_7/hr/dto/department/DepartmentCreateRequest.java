@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class DepartmentCreateRequest {
     @NotBlank(message = "department name cannot be blanked")
-    @Size(min = 1, max = 20, message = "")
+    @Size(min = 1, max = 20, message = "minimun is 1 and maximum is 20 for department name")
     private String name;
 
     @Size(max = 500, message = "department description cannot exceeds 500 words")

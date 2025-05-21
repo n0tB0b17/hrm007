@@ -18,16 +18,25 @@ import com._7.hr.dto.tenant.TenantResponse;
 import com._7.hr.dto.tenant.TenantUpdateRequest;
 import com._7.hr.service.TenantService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/admin/tenants")
-@RequiredArgsConstructor
+@Tag(name = "Tenant APIs", description = "this contains all required APIs for tenant related services")
 public class TenantController {
     private final TenantService tenantService;
 
+    public TenantController(TenantService tenantService) {
+        this.tenantService = tenantService;
+    }
+
     @PostMapping
+    @Operation(summary = "Create new tenant", description = "Creates new tenant for any organization interested in HRM analysis")
+    @ApiResponse(responseCode = "201 CREATED", description = "Tenant created")
+    @ApiResponse(responseCode = "409 CONFLICT", description = "Tenant already exists")
     public ResponseEntity<TenantResponse> registerTenant(@Valid @RequestBody TenantCreateRequest tenantCreateRequest) {
         TenantResponse tenantResponse = tenantService.registerTenant(tenantCreateRequest);
         return new ResponseEntity<>(tenantResponse, HttpStatus.CREATED);
@@ -53,7 +62,7 @@ public class TenantController {
     }
 
     @DeleteMapping("/{tenantId}")
-    public ResponseEntity<Void> deleteTenantById(@PathVariable String tenantId) {
+    public ResponseEntity<TenantResponse> deleteTenantById(@PathVariable String tenantId) {
         tenantService.deleteTenant(tenantId);
         return ResponseEntity.noContent().build();
     }

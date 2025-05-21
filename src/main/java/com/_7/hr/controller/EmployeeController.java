@@ -18,10 +18,12 @@ import com._7.hr.dto.employee.EmployeeResponse;
 import com._7.hr.dto.employee.EmployeeUpdateRequest;
 import com._7.hr.service.EmployeeService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/tenant/{tenantId}/employees")
+@Tag(name = "Employee APIs", description = "this contains all required APIs for tenant's employee related services")
 public class EmployeeController {
     private final EmployeeService employeeService;
 
@@ -59,6 +61,8 @@ public class EmployeeController {
     @PutMapping("/{employeeId}")
     public ResponseEntity<EmployeeResponse> updateEmployee(@PathVariable String tenantId,
             @PathVariable String employeeId, @Valid @RequestBody EmployeeUpdateRequest employeeUpdateRequest) {
-        return null;
+        EmployeeResponse employeeResponse = employeeService.updateEmployeeById(tenantId, employeeId,
+                employeeUpdateRequest);
+        return new ResponseEntity<>(employeeResponse, HttpStatus.CREATED);
     }
 }

@@ -25,4 +25,13 @@ public interface EmployeeRepository extends Neo4jRepository<Employee, Long> {
 
     @Query("MATCH (e: Employee {employeeId: $employeeId})-[:WORKS_FOR]->(t:Tenant {tenantId: $tenantId}) DETACH DELETE e")
     void deleteByEmployeeIdAndTenantId(String employeeId, String tenantId);
+
+    @Query("MATCH (e: Employee {employeeId: $employeeId})-[:WORKS_FOR]->(t: Tenant {tenantId: $tenantId}) " +
+            "SET e.firstName = $firstName, " +
+            "e.lastName = $lastName, " +
+            "e.email = $email, " +
+            "e.jobTitle = $jobTitle, " +
+            "e.updatedAt = datetime() " +
+            "RETURN e, COLLECT(t)")
+    Employee updateByEmployeeIdAndTenantId(String employeeId, String tenantId, String email, String jobTitle);
 }

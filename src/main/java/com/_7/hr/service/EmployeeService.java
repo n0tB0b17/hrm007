@@ -7,11 +7,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com._7.hr.domain.employee.Employee;
 import com._7.hr.domain.tenant.Tenant;
 import com._7.hr.dto.employee.EmployeeCreateRequest;
 import com._7.hr.dto.employee.EmployeeResponse;
+import com._7.hr.dto.employee.EmployeeUpdateRequest;
 import com._7.hr.exception.EmployeeAlreadyExistsException;
 import com._7.hr.exception.ResourceNotFoundException;
 import com._7.hr.repository.EmployeeRepository;
@@ -75,8 +77,30 @@ public class EmployeeService {
     }
 
     @Transactional
-    public EmployeeResponse updateEmployeeById(String tenantId, String employeeId) {
-        return null;
+    public EmployeeResponse updateEmployeeById(String tenantId, String employeeId,
+            EmployeeUpdateRequest employeeUpdateRequest) {
+
+        Employee employee = employeeRepository.findByEmployeeIdAndTenantId(employeeId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found for given id: " + employeeId));
+
+        if (StringUtils.hasText(employeeUpdateRequest.getFirstName())) {
+            employee.setFirstName(employeeUpdateRequest.getFirstName());
+        }
+
+        if (StringUtils.hasText(employeeUpdateRequest.getLastName())) {
+            employee.setLastName(employeeUpdateRequest.getLastName());
+        }
+
+        if (StringUtils.hasText(employeeUpdateRequest.getEmail())) {
+            employee.setEmail(employeeUpdateRequest.getEmail());
+        }
+
+        if (StringUtils.hasText(employeeUpdateRequest.getJobTitle())) {
+            employee.setJobTitle(employeeUpdateRequest.getJobTitle());
+        }
+
+        Employee savedEmployee = employeeRepository.save(employee);
+        return mapToEmployeeResponse(savedEmployee);
     }
 
     private EmployeeResponse mapToEmployeeResponse(Employee employee) {
