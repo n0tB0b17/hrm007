@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import com._7.hr.domain.department.Department;
 import com._7.hr.domain.employee.Employee;
 import com._7.hr.domain.tenant.Tenant;
 import com._7.hr.dto.employee.EmployeeCreateRequest;
@@ -16,17 +17,21 @@ import com._7.hr.dto.employee.EmployeeResponse;
 import com._7.hr.dto.employee.EmployeeUpdateRequest;
 import com._7.hr.exception.EmployeeAlreadyExistsException;
 import com._7.hr.exception.ResourceNotFoundException;
+import com._7.hr.repository.DepartmentRespoitory;
 import com._7.hr.repository.EmployeeRepository;
 import com._7.hr.repository.TenantRepository;
 
 @Service
 public class EmployeeService {
+    private final DepartmentRespoitory departmentRespoitory;
     private final EmployeeRepository employeeRepository;
     private final TenantRepository tenantRepository;
 
-    public EmployeeService(EmployeeRepository employeeRepository, TenantRepository tenantRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository, TenantRepository tenantRepository,
+            DepartmentRespoitory departmentRespoitory) {
         this.employeeRepository = employeeRepository;
         this.tenantRepository = tenantRepository;
+        this.departmentRespoitory = departmentRespoitory;
     }
 
     @Transactional
@@ -50,6 +55,15 @@ public class EmployeeService {
         newEmployee.setCreatedAt(LocalDateTime.now());
         newEmployee.setUpdatedAt(LocalDateTime.now());
         newEmployee.setTenant(tenant);
+
+        if (StringUtils.hasText(employeeCreateRequest.getDepartmentId())) {
+            Department department = departmentRespoitory
+                    .findByDepartmentIdAndTenantId(employeeCreateRequest.getDepartmentId(), tenantId)
+                    .orElseThrow(() -> new ResourceNotFoundException("department not found for given department id: "
+                            + employeeCreateRequest.getDepartmentId() + " and tenant id: " + tenantId));
+
+            newEmployee.setDepartment(department);
+        }
 
         Employee savedEmployee = employeeRepository.save(newEmployee);
         return this.mapToEmployeeResponse(savedEmployee);
@@ -103,6 +117,27 @@ public class EmployeeService {
         return mapToEmployeeResponse(savedEmployee);
     }
 
+    @Transactional
+    public EmployeeResponse assignDepartment(String tenantId, String employeeId, String departmentId) {
+        Employee employee = employeeRepository.findByEmployeeIdAndTenantId(employeeId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Employee not found for given id:" + employeeId + " and tenant id: " + tenantId));
+
+        if (StringUtils.hasText(departmentId)) {
+            Department department = departmentRespoitory.findByDepartmentIdAndTenantId(departmentId, tenantId)
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "department not found for given id:" + departmentId + " and tenant id: " + tenantId));
+
+            employee.setDepartment(department);
+        } else {
+            employee.setDepartment(null);
+        }
+        
+        employee.setUpdatedAt(LocalDateTime.now());
+        Employee savedEmployee = employeeRepository.save(employee);
+        return mapToEmployeeResponse(savedEmployee);
+    }
+
     private EmployeeResponse mapToEmployeeResponse(Employee employee) {
         EmployeeResponse employeeResponse = new EmployeeResponse();
 
@@ -119,6 +154,12 @@ public class EmployeeService {
             employeeResponse.setTenantId(employee.getTenant().getTenantId());
         }
 
+        if (employee.getDepartment() != null) {
+            employeeResponse.setDepartmentId(employee.getDepartment().getDepartmentId());
+            employeeResponse.setDepartmentName(employee.getDepartment().getName());
+        }
+
         return employeeResponse;
     }
+
 }

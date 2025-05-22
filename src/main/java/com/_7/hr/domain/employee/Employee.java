@@ -11,6 +11,7 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
+import com._7.hr.domain.department.Department;
 import com._7.hr.domain.tenant.Tenant;
 
 import lombok.Data;
@@ -54,6 +55,11 @@ public class Employee {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Tenant tenant;
+
+    @Relationship(type="MEMBER_OF", direction = Relationship.Direction.OUTGOING)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Department department;
 
     public Employee(String firstName, String lastName, String email, String jobTitle, LocalDate hireDate) {
         this.firstName = firstName;

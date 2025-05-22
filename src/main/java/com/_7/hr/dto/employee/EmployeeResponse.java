@@ -14,6 +14,8 @@ public class EmployeeResponse {
     private String email;
     private String jobTitle;
     private LocalDate hireDate;
+    private String departmentId;
+    private String departmentName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

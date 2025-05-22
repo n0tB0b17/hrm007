@@ -29,4 +29,6 @@ public class EmployeeCreateRequest {
     @NotNull(message = "hire date cannot be null")
     @PastOrPresent(message = "hire date should be past or present")
     private LocalDate hireDate;
+
+    private String departmentId;
 }

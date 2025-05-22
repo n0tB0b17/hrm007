@@ -1,6 +1,7 @@
 package com._7.hr.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,5 +65,13 @@ public class EmployeeController {
         EmployeeResponse employeeResponse = employeeService.updateEmployeeById(tenantId, employeeId,
                 employeeUpdateRequest);
         return new ResponseEntity<>(employeeResponse, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{employeeId}/department")
+    public ResponseEntity<EmployeeResponse> assignDepartment(@PathVariable String tenantId,
+            @PathVariable String employeeId, Map<String, String> payload) {
+        String departmentId = (payload != null) ? payload.get("departmentId") : null;
+        EmployeeResponse employeeResponse = employeeService.assignDepartment(tenantId, employeeId, departmentId);
+        return new ResponseEntity<>(employeeResponse, HttpStatus.OK);
     }
 }
