@@ -132,7 +132,7 @@ public class EmployeeService {
         } else {
             employee.setDepartment(null);
         }
-        
+
         employee.setUpdatedAt(LocalDateTime.now());
         Employee savedEmployee = employeeRepository.save(employee);
         return mapToEmployeeResponse(savedEmployee);

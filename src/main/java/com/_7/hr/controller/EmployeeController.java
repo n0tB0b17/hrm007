@@ -69,7 +69,7 @@ public class EmployeeController {
 
     @PutMapping("/{employeeId}/department")
     public ResponseEntity<EmployeeResponse> assignDepartment(@PathVariable String tenantId,
-            @PathVariable String employeeId, Map<String, String> payload) {
+            @PathVariable String employeeId, @RequestBody Map<String, String> payload) {
         String departmentId = (payload != null) ? payload.get("departmentId") : null;
         EmployeeResponse employeeResponse = employeeService.assignDepartment(tenantId, employeeId, departmentId);
         return new ResponseEntity<>(employeeResponse, HttpStatus.OK);

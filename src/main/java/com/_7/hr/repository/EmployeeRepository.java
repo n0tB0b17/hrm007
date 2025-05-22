@@ -11,10 +11,19 @@ import com._7.hr.domain.employee.Employee;
 
 @Repository
 public interface EmployeeRepository extends Neo4jRepository<Employee, Long> {
-    @Query("MATCH (e: Employee {employeeId: $employeeId})-[rel:WORKS_FOR]->(t:Tenant {tenantId: $tenantId}) RETURN e,rel,t")
+    // @Query("MATCH (e: Employee {employeeId:
+    // $employeeId})-[rel:WORKS_FOR]->(t:Tenant {tenantId: $tenantId}) RETURN
+    // e,rel,t")
+    @Query("MATCH (e: Employee {employeeId: $employeeId})-[tRel:WORKS_FOR]->(t: Tenant {tenantId: $tenantId}) " +
+            "OPTIONAL MATCH (e)-[dRel:MEMBER_OF]->(d: Department) " +
+            "RETURN e, tRel, t, dRel, d")
     Optional<Employee> findByEmployeeIdAndTenantId(String employeeId, String tenantId);
 
-    @Query("MATCH (e: Employee)-[rel:WORKS_FOR]->(t: Tenant {tenantId: $tenantId}) RETURN e,rel,t")
+    // @Query("MATCH (e: Employee)-[rel:WORKS_FOR]->(t: Tenant {tenantId:
+    // $tenantId}) RETURN e,rel,t")
+    @Query("MATCH (e: Employee)-[tRel:WORKS_FOR]->(t: Tenant {tenantId: $tenantId}) " +
+            "OPTIONAL MATCH (e)-[dRel:MEMBER_OF]->(d: Department) " +
+            "RETURN e,tRel,t,dRel,d")
     List<Employee> findAllByTenantId(String tenantId);
 
     @Query("MATCH (e: Employee {email: $email})-[:WORKS_FOR]->(t:Tenant {tenantId: $tenantId}) RETURN COUNT(e) > 0")
