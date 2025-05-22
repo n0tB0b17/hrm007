@@ -56,8 +56,11 @@ public class DepartmentService {
 
     @Transactional(readOnly = true)
     public List<DepartmentResponse> getAllDepartment(String tenantId) {
-        List<Department> departments = departmentRespoitory.findAllByTenantId(tenantId);
+        if (!tenantRepository.findByTenantId(tenantId).isPresent()) {
+            throw new ResourceNotFoundException("Tenant not found for given id: " + tenantId);
+        }
 
+        List<Department> departments = departmentRespoitory.findAllByTenantId(tenantId);
         return departments.stream()
                 .map(this::mapToDepartmentResponse)
                 .collect(Collectors.toList());
@@ -73,6 +76,10 @@ public class DepartmentService {
 
     @Transactional
     public boolean deleteDepartmentById(String tenantId, String departmentId) {
+        if(!departmentRespoitory.findByDepartmentIdAndTenantId(departmentId, tenantId).isPresent()){
+            throw new ResourceNotFoundException("department not found for given id: " + departmentId);
+        }
+
         Long deleteResponse = departmentRespoitory.deleteByDepartmentIdAndTenantId(departmentId, tenantId);
         if (deleteResponse != 0) {
             return true;

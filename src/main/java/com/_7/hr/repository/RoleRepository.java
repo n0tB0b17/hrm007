@@ -11,12 +11,15 @@ import com._7.hr.domain.role.Role;
 
 @Repository
 public interface RoleRepository extends Neo4jRepository<Role, Long> {
-    @Query("MATCH (r: Role {roleId: $roleId})-[rel:DEFINED_BY]->(t: Tenant {tenantId: $tenantId}) RETURN r,rel,t")
+    @Query("MATCH (r: Role {roleId: $roleId})-[rel:DEFINED_FOR]->(t: Tenant {tenantId: $tenantId}) RETURN r,rel,t")
     Optional<Role> findByRoleIdAndTenantId(String roleId, String tenantId);
 
-    @Query("MATCH (r: Role)-[rel:DEFINED_BY]->(t: Tenant {tenantId: $tenantId}) RETURN r, rel, t")
+    @Query("MATCH (r: Role)-[rel:DEFINED_FOR]->(t: Tenant {tenantId: $tenantId}) RETURN r, rel, t")
     List<Role> findAllByTenantId(String tenantId);
 
-    @Query("MATCH (r: Role { name: $name })-[rel:DEFINED_BY]->(t: Tenant {tenantId: $tenantId})")
+    @Query("MATCH (r: Role { name: $name })-[rel:DEFINED_FOR]->(t: Tenant {tenantId: $tenantId}) RETURN COUNT(r) > 0")
     boolean existsByNameAndTenantId(String name, String tenantId);
+
+    @Query("MATCH (r: Role {roleId: $roleId})-[rel:DEFINED_FOR]->(t: Tenant { tenantId: $tenantId }) DETACH DELETE r RETURN COUNT(r) AS deletedCount")
+    Long deleteByRoleIdAndTenantId(String roleId, String tenantId);
 }

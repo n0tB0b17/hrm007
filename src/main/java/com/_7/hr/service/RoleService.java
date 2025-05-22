@@ -52,6 +52,10 @@ public class RoleService {
 
     @Transactional(readOnly = true)
     public RoleResponse getRoleByIdAndTenantId(String tenantId, String roleId) {
+        if (!tenantRepository.findByTenantId(tenantId).isPresent()) {
+            throw new ResourceNotFoundException("Tenant not found for given id: " + tenantId);
+        }
+
         Role role = roleRepository.findByRoleIdAndTenantId(roleId, tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Role not found for given roleId: " + roleId + " and tenantId: " + tenantId));
@@ -69,6 +73,15 @@ public class RoleService {
 
     @Transactional
     public boolean deleteRoleByIdAndTenantId(String tenantId, String roleId) {
+        Role role = roleRepository.findByRoleIdAndTenantId(roleId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Role not found for given roleId: " + roleId + " and tenantId: " + tenantId));
+
+        Long isDeleted = roleRepository.deleteByRoleIdAndTenantId(role.getRoleId(), role.getTenant().getTenantId());
+        if (isDeleted > 0) {
+            return true;
+        }
+
         return false;
     }
 

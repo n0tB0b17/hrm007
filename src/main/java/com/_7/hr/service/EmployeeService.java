@@ -71,6 +71,10 @@ public class EmployeeService {
 
     @Transactional(readOnly = true)
     public List<EmployeeResponse> getAllEmployee(String tenantId) {
+        if (!tenantRepository.findByTenantId(tenantId).isPresent()) {
+            throw new ResourceNotFoundException("Tenant not found for given id: " + tenantId);
+        }
+
         List<EmployeeResponse> employeeResponses = employeeRepository.findAllByTenantId(tenantId)
                 .stream().map(this::mapToEmployeeResponse)
                 .collect(Collectors.toList());
