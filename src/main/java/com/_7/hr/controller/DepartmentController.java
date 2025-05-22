@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com._7.hr.dto.department.DepartmentCreateRequest;
 import com._7.hr.dto.department.DepartmentResponse;
 import com._7.hr.dto.department.DepartmentUpdateRequest;
-import com._7.hr.dto.tenant.TenantResponse;
 import com._7.hr.service.DepartmentService;
 
 import java.util.List;
@@ -55,16 +54,22 @@ public class DepartmentController {
     }
 
     @DeleteMapping("/{departmentId}")
-    public ResponseEntity<TenantResponse> deleteDepartment(@PathVariable String tenantId,
+    public ResponseEntity<DepartmentResponse> deleteDepartment(@PathVariable String tenantId,
             @PathVariable String departmentId) {
         boolean deleteResponse = departmentService.deleteDepartmentById(tenantId, departmentId);
-        System.out.println(deleteResponse);
+        if (!deleteResponse) {
+            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+        }
+
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{departmentId}")
-    public ResponseEntity<TenantResponse> updateDepartment(@PathVariable String tenantId,
-            @Valid @RequestBody DepartmentUpdateRequest departmentUpdateRequest) {
-        return null;
+    public ResponseEntity<DepartmentResponse> updateDepartment(@PathVariable String tenantId,
+            @PathVariable String departmentId, @Valid @RequestBody DepartmentUpdateRequest departmentUpdateRequest) {
+        DepartmentResponse departmentResponse = departmentService.updateDepartmentById(tenantId, departmentId,
+                departmentUpdateRequest);
+
+        return new ResponseEntity<>(departmentResponse, HttpStatus.CREATED);
     }
 }

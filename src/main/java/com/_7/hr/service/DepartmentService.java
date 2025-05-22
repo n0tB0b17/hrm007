@@ -82,7 +82,22 @@ public class DepartmentService {
     }
 
     @Transactional
-    public void updateDepartmentById(String tenantId, DepartmentUpdateRequest departmentUpdateRequest) {
+    public DepartmentResponse updateDepartmentById(String tenantId, String departmentId,
+            DepartmentUpdateRequest departmentUpdateRequest) {
+        Department department = departmentRespoitory.findByDepartmentIdAndTenantId(departmentId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Department not found for given departmentId: " + departmentId + " and tenantId: " + tenantId));
+
+        if (StringUtils.hasText(departmentUpdateRequest.getName())) {
+            department.setName(departmentUpdateRequest.getName());
+        }
+
+        if (StringUtils.hasText(departmentUpdateRequest.getDescription())) {
+            department.setDescription(departmentUpdateRequest.getDescription());
+        }
+
+        Department savDepartment = departmentRespoitory.save(department);
+        return mapToDepartmentResponse(savDepartment);
     }
 
     private DepartmentResponse mapToDepartmentResponse(Department department) {
