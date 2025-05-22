@@ -11,10 +11,10 @@ import com._7.hr.domain.department.Department;
 
 @Repository
 public interface DepartmentRespoitory extends Neo4jRepository<Department, Long> {
-    @Query("MATCH (d: Department {departmentId: $departmentId})-[:BELONGS_TO]->(t: Tenant {tenantId: $tenantId}) RETURN d, COLLECT(t) AS tenants")
+    @Query("MATCH (d: Department {departmentId: $departmentId})-[rel:BELONGS_TO]->(t: Tenant {tenantId: $tenantId}) RETURN d,rel,t")
     Optional<Department> findByDepartmentIdAndTenantId(String departmentId, String tenantId);
 
-    @Query("MATCH (d: Department)-[:BELONGS_TO]->(t: Tenant {tenantId: $tenantId}) RETURN d, COLLECT(t)")
+    @Query("MATCH (d: Department)-[rel:BELONGS_TO]->(t: Tenant {tenantId: $tenantId}) RETURN d,rel,t")
     List<Department> findAllByTenantId(String tenantId);
 
     @Query("MATCH (d: Department {name: $name})-[:BELONGS_TO]->(t: Tenant {tenantId: $tenantId}) RETURN COUNT(d) > 0")
