@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/tenant/{tenantId}/roles")
-@Tag(name = "Roles", description = "this contains all required APIs for tenant's role related services")
+@Tag(name = "Roles APIs", description = "this contains all required APIs for tenant's role related services")
 public class RoleController {
     private final RoleService roleService;
 

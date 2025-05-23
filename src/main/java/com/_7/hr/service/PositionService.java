@@ -1,7 +1,9 @@
 package com._7.hr.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,6 +75,47 @@ public class PositionService {
         return mapToPositionResponse(savedPosition);
     }
 
+    @Transactional(readOnly = true)
+    public List<PositionResponse> getAllPosition(String tenantId) {
+        if (!tenantRepository.findByTenantId(tenantId).isPresent()) {
+            throw new ResourceNotFoundException("Tenant not found for given id: " + tenantId);
+        }
+
+        return positionRepository.findAllByTenantId(tenantId)
+                .stream()
+                .map(this::mapToPositionResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public PositionResponse getPositionById(String tenantId, String positionId) {
+        if (!tenantRepository.findByTenantId(tenantId).isPresent()) {
+            throw new ResourceNotFoundException("Tenant not found for given id: " + tenantId);
+        }
+
+        Position position = positionRepository.findByIdAndTenantId(positionId, tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Position not found for given positionId: " + positionId + " for tenantId: " + tenantId));
+
+        return mapToPositionResponse(position);
+    }
+
+    @Transactional
+    public boolean deletePositionById(String tenantId, String positionId) {
+        if (!tenantRepository.findByTenantId(tenantId).isPresent()) {
+            throw new ResourceNotFoundException("Tenant not found for given id: " + tenantId);
+        }
+
+        Long deleteResp = positionRepository.deleteByIdAndTenantId(positionId, tenantId);
+        if (deleteResp > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // add update
+
     private PositionResponse mapToPositionResponse(Position position) {
         PositionResponse positionResponse = new PositionResponse();
 
@@ -80,6 +123,8 @@ public class PositionService {
         positionResponse.setName(position.getName());
         positionResponse.setDescription(position.getDescription());
         positionResponse.setOpen(position.isOpen());
+        positionResponse.setCreatedAt(position.getCreatedAt());
+        positionResponse.setUpdatedAt(position.getUpdatedAt());
 
         if (position.getRole() != null) {
             positionResponse.setRoleId(position.getRole().getRoleId());

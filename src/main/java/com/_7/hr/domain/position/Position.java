@@ -25,7 +25,7 @@ import lombok.ToString;
 public class Position {
     @Id
     @GeneratedValue
-    private String elementId;
+    private Long elementId;
 
     @Property("positionId")
     private String positionId;
