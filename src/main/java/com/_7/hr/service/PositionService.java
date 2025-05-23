@@ -93,7 +93,7 @@ public class PositionService {
             throw new ResourceNotFoundException("Tenant not found for given id: " + tenantId);
         }
 
-        Position position = positionRepository.findByIdAndTenantId(positionId, tenantId)
+        Position position = positionRepository.findByPositionIdAndTenantId(positionId, tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Position not found for given positionId: " + positionId + " for tenantId: " + tenantId));
 
