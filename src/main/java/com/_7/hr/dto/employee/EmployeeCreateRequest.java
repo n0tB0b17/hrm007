@@ -22,13 +22,15 @@ public class EmployeeCreateRequest {
     @Email(message = "email should be from a valid provider")
     private String email;
 
-    @NotBlank(message = "job title cannot be blanked")
-    @Size(min = 2, max = 20, message = "job title should be minimum of 2 and maximum of 20")
-    private String jobTitle;
+    // @NotBlank(message = "job title cannot be blanked")
+    // @Size(min = 2, max = 20, message = "job title should be minimum of 2 and
+    // maximum of 20")
+    // private String jobTitle;
 
     @NotNull(message = "hire date cannot be null")
     @PastOrPresent(message = "hire date should be past or present")
     private LocalDate hireDate;
 
-    private String departmentId;
+    // private String departmentId;
+    private String positionId;
 }

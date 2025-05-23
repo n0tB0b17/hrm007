@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import com._7.hr.domain.department.Department;
 import com._7.hr.domain.employee.Employee;
+import com._7.hr.domain.position.Position;
 import com._7.hr.domain.tenant.Tenant;
 import com._7.hr.dto.employee.EmployeeCreateRequest;
 import com._7.hr.dto.employee.EmployeeResponse;
@@ -19,6 +19,7 @@ import com._7.hr.exception.EmployeeAlreadyExistsException;
 import com._7.hr.exception.ResourceNotFoundException;
 import com._7.hr.repository.DepartmentRespoitory;
 import com._7.hr.repository.EmployeeRepository;
+import com._7.hr.repository.PositionRepository;
 import com._7.hr.repository.TenantRepository;
 
 @Service
@@ -26,12 +27,14 @@ public class EmployeeService {
     private final DepartmentRespoitory departmentRespoitory;
     private final EmployeeRepository employeeRepository;
     private final TenantRepository tenantRepository;
+    private final PositionRepository positionRepository;
 
     public EmployeeService(EmployeeRepository employeeRepository, TenantRepository tenantRepository,
-            DepartmentRespoitory departmentRespoitory) {
+            DepartmentRespoitory departmentRespoitory, PositionRepository positionRepository) {
         this.employeeRepository = employeeRepository;
         this.tenantRepository = tenantRepository;
         this.departmentRespoitory = departmentRespoitory;
+        this.positionRepository = positionRepository;
     }
 
     @Transactional
@@ -50,19 +53,18 @@ public class EmployeeService {
         newEmployee.setFirstName(employeeCreateRequest.getFirstName());
         newEmployee.setLastName(employeeCreateRequest.getLastName());
         newEmployee.setEmail(employeeCreateRequest.getEmail());
-        newEmployee.setJobTitle(employeeCreateRequest.getJobTitle());
         newEmployee.setHireDate(employeeCreateRequest.getHireDate());
         newEmployee.setCreatedAt(LocalDateTime.now());
         newEmployee.setUpdatedAt(LocalDateTime.now());
         newEmployee.setTenant(tenant);
 
-        if (StringUtils.hasText(employeeCreateRequest.getDepartmentId())) {
-            Department department = departmentRespoitory
-                    .findByDepartmentIdAndTenantId(employeeCreateRequest.getDepartmentId(), tenantId)
-                    .orElseThrow(() -> new ResourceNotFoundException("department not found for given department id: "
-                            + employeeCreateRequest.getDepartmentId() + " and tenant id: " + tenantId));
+        if (StringUtils.hasText(employeeCreateRequest.getPositionId())) {
+            Position position = positionRepository
+                    .findByPositionIdAndTenantId(employeeCreateRequest.getPositionId(), tenantId)
+                    .orElseThrow(() -> new ResourceNotFoundException("position not found for given positionId: "
+                            + employeeCreateRequest.getPositionId() + " and tenant id: " + tenantId));
 
-            newEmployee.setDepartment(department);
+            newEmployee.setPosition(position);
         }
 
         Employee savedEmployee = employeeRepository.save(newEmployee);
@@ -75,7 +77,7 @@ public class EmployeeService {
             throw new ResourceNotFoundException("Tenant not found for given id: " + tenantId);
         }
 
-        List<EmployeeResponse> employeeResponses = employeeRepository.findAllByTenantId(tenantId)
+        List<EmployeeResponse> employeeResponses = employeeRepository.findByTenantId(tenantId)
                 .stream().map(this::mapToEmployeeResponse)
                 .collect(Collectors.toList());
         return employeeResponses;
@@ -113,9 +115,9 @@ public class EmployeeService {
             employee.setEmail(employeeUpdateRequest.getEmail());
         }
 
-        if (StringUtils.hasText(employeeUpdateRequest.getJobTitle())) {
-            employee.setJobTitle(employeeUpdateRequest.getJobTitle());
-        }
+        // if (StringUtils.hasText(employeeUpdateRequest.getJobTitle())) {
+        // employee.setJobTitle(employeeUpdateRequest.getJobTitle());
+        // }
 
         Employee savedEmployee = employeeRepository.save(employee);
         return mapToEmployeeResponse(savedEmployee);
@@ -127,15 +129,17 @@ public class EmployeeService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Employee not found for given id:" + employeeId + " and tenant id: " + tenantId));
 
-        if (StringUtils.hasText(departmentId)) {
-            Department department = departmentRespoitory.findByDepartmentIdAndTenantId(departmentId, tenantId)
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "department not found for given id:" + departmentId + " and tenant id: " + tenantId));
+        // if (StringUtils.hasText(departmentId)) {
+        // Department department =
+        // departmentRespoitory.findByDepartmentIdAndTenantId(departmentId, tenantId)
+        // .orElseThrow(() -> new ResourceNotFoundException(
+        // "department not found for given id:" + departmentId + " and tenant id: " +
+        // tenantId));
 
-            employee.setDepartment(department);
-        } else {
-            employee.setDepartment(null);
-        }
+        // employee.setDepartment(department);
+        // } else {
+        // employee.setDepartment(null);
+        // }
 
         employee.setUpdatedAt(LocalDateTime.now());
         Employee savedEmployee = employeeRepository.save(employee);
@@ -149,7 +153,6 @@ public class EmployeeService {
         employeeResponse.setFirstName(employee.getFirstName());
         employeeResponse.setLastName(employee.getLastName());
         employeeResponse.setEmail(employee.getEmail());
-        employeeResponse.setJobTitle(employee.getJobTitle());
         employeeResponse.setHireDate(employee.getHireDate());
         employeeResponse.setCreatedAt(employee.getCreatedAt());
         employeeResponse.setUpdatedAt(employee.getUpdatedAt());
@@ -158,9 +161,21 @@ public class EmployeeService {
             employeeResponse.setTenantId(employee.getTenant().getTenantId());
         }
 
-        if (employee.getDepartment() != null) {
-            employeeResponse.setDepartmentId(employee.getDepartment().getDepartmentId());
-            employeeResponse.setDepartmentName(employee.getDepartment().getName());
+        if (employee.getPosition() != null) {
+            Position position = employee.getPosition();
+            employeeResponse.setPositionId(position.getPositionId());
+            employeeResponse.setPositionName(position.getName());
+
+            if (position.getRole() != null) {
+                employeeResponse.setRoleId(position.getRole().getRoleId());
+                employeeResponse.setRoleName(position.getRole().getName());
+            }
+
+            if (position.getDepartment() != null) {
+                employeeResponse.setDepartmentId(position.getDepartment().getDepartmentId());
+                employeeResponse.setDepartmentName(position.getDepartment().getName());
+            }
+
         }
 
         return employeeResponse;

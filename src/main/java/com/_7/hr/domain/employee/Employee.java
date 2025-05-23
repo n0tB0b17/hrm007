@@ -11,7 +11,7 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
-import com._7.hr.domain.department.Department;
+import com._7.hr.domain.position.Position;
 import com._7.hr.domain.tenant.Tenant;
 
 import lombok.Data;
@@ -25,7 +25,7 @@ import lombok.ToString;
 public class Employee {
     @Id
     @GeneratedValue
-    private Long id;
+    private Long elementId;
 
     @Property("employeeId")
     private String employeeId;
@@ -38,9 +38,6 @@ public class Employee {
 
     @Property("email")
     private String email;
-
-    @Property("jobTitle")
-    private String jobTitle;
 
     @Property("hireDate")
     private LocalDate hireDate;
@@ -56,16 +53,15 @@ public class Employee {
     @EqualsAndHashCode.Exclude
     private Tenant tenant;
 
-    @Relationship(type="MEMBER_OF", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "HOLD_POSITION", direction = Relationship.Direction.OUTGOING)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Department department;
+    private Position position;
 
-    public Employee(String firstName, String lastName, String email, String jobTitle, LocalDate hireDate) {
+    public Employee(String firstName, String lastName, String email, LocalDate hireDate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.jobTitle = jobTitle;
         this.hireDate = hireDate;
     }
 }

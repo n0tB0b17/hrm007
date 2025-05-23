@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class Tenant {
     @Id
     @GeneratedValue
-    private Long id;
+    private Long elementId;
 
     @Property("tenantId")
     private String tenantId;
