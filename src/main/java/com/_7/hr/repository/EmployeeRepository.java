@@ -19,15 +19,9 @@ public interface EmployeeRepository extends Neo4jRepository<Employee, Long> {
                         +
                         "OPTIONAL MATCH (p)-[ref3:PART_OF]->(d: Department)";
 
-        @Query("MATCH (e: Employee {employeeId: $employeeId})-[tRel:WORKS_FOR]->(t: Tenant {tenantId: $tenantId}) " +
-                        "OPTIONAL MATCH (e)-[dRel:MEMBER_OF]->(d: Department) " +
-                        "RETURN e, tRel, t, dRel, d")
+        @Query(EMPLOYEE_CORE_MATCH + " OPTIONAL MATCH (e)-[dRel:MEMBER_OF]->(d: Department) " +
+                        "RETURN e, ref0, t, dRel, d")
         Optional<Employee> findByEmployeeIdAndTenantId(String employeeId, String tenantId);
-
-        @Query("MATCH (e: Employee)-[tRel:WORKS_FOR]->(t: Tenant {tenantId: $tenantId}) " +
-                        "OPTIONAL MATCH (e)-[dRel:MEMBER_OF]->(d: Department) " +
-                        "RETURN e,tRel,t,dRel,d")
-        List<Employee> findAllByTenantId(String tenantId);
 
         @Query("MATCH (e: Employee {email: $email})-[:WORKS_FOR]->(t:Tenant {tenantId: $tenantId}) RETURN COUNT(e) > 0")
         boolean existsByEmailAndTenantId(String email, String tenantId);
@@ -49,4 +43,20 @@ public interface EmployeeRepository extends Neo4jRepository<Employee, Long> {
 
         @Query(EMPLOYEE_ALL_MATCH + EMPLOYEE_POSITION_OPTIONAL_MATCH + "RETURN e,ref0,t,ref1,p,ref2,r,ref3,d")
         List<Employee> findByTenantId(String tenantId);
+
+        @Query("MATCH (t: Tenant {tenantId: $tenantId})<-[ref0:ASSOCIATED_WITH]-(p: Position)-[ref1:PART_OF]->(d: Department {departmentId: $departmentId}), "
+                        +
+                        "(e: Employee)-[ref2:HOLD_POSITION]->(p: Position), (e: Employee)-[ref3:WORKS_FOR]->(t: Tenant) "
+                        +
+                        "OPTIONAL MATCH (p: Position)-[ref4:HAS_ROLE]->(r: Role) " +
+                        "RETURN t,ref0,p,ref1,d,ref2,e,ref4,r")
+        List<Employee> findEmployeeByTenantIdAndDepartmentId(String tenantId, String departmentId);
+
+        @Query("MATCH (e: Employee {employeeId: $employeeId})-[ref0:HOLD_POSITION]->(p) RETURN count(e) > 0")
+        boolean isAssignedToPosition(String employeeId);
+
+        @Query("MATCH (e: Employee)-[ref0:HOLD_POSITION]->(p: Position {positionId: $positionId}) WHERE (p)-[ref1:ASSOCIATED_WITH]->(t: Tenant {tenantId: $tenantId}) "
+                        +
+                        "RETURN e,ref0,p,ref1,t")
+        Optional<Employee> findEmployeeByTenantIdAndPositionId(String tenantId, String positionId);
 }

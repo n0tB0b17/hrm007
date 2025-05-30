@@ -11,7 +11,6 @@ import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import com._7.hr.domain.department.Department;
-import com._7.hr.domain.employee.Employee;
 import com._7.hr.domain.role.Role;
 import com._7.hr.domain.tenant.Tenant;
 
@@ -60,11 +59,6 @@ public class Position {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Tenant tenant;
-
-    @Relationship(type = "HOLD_POSITION", direction = Relationship.Direction.INCOMING)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private Employee employee;
 
     public Position(String name, String description, boolean isOpen) {
         this.name = name;

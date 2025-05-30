@@ -112,6 +112,19 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
         }
 
+        @ExceptionHandler(InvalidOperationException.class)
+        public ResponseEntity<ErrorDetails> handleInvalidOperationException(
+                        InvalidOperationException ex,
+                        WebRequest req) {
+                ErrorDetails errorDetails = new ErrorDetails(
+                                LocalDateTime.now(),
+                                HttpStatus.BAD_REQUEST.value(),
+                                req.getDescription(false),
+                                ex.getMessage());
+
+                return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+        }
+
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ErrorDetails> handleGlobalException(
                         Exception ex,

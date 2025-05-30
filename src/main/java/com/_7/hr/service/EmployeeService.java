@@ -16,24 +16,22 @@ import com._7.hr.dto.employee.EmployeeCreateRequest;
 import com._7.hr.dto.employee.EmployeeResponse;
 import com._7.hr.dto.employee.EmployeeUpdateRequest;
 import com._7.hr.exception.EmployeeAlreadyExistsException;
+import com._7.hr.exception.InvalidOperationException;
 import com._7.hr.exception.ResourceNotFoundException;
-import com._7.hr.repository.DepartmentRespoitory;
 import com._7.hr.repository.EmployeeRepository;
 import com._7.hr.repository.PositionRepository;
 import com._7.hr.repository.TenantRepository;
 
 @Service
 public class EmployeeService {
-    private final DepartmentRespoitory departmentRespoitory;
     private final EmployeeRepository employeeRepository;
     private final TenantRepository tenantRepository;
     private final PositionRepository positionRepository;
 
     public EmployeeService(EmployeeRepository employeeRepository, TenantRepository tenantRepository,
-            DepartmentRespoitory departmentRespoitory, PositionRepository positionRepository) {
+            PositionRepository positionRepository) {
         this.employeeRepository = employeeRepository;
         this.tenantRepository = tenantRepository;
-        this.departmentRespoitory = departmentRespoitory;
         this.positionRepository = positionRepository;
     }
 
@@ -63,6 +61,11 @@ public class EmployeeService {
                     .findByPositionIdAndTenantId(employeeCreateRequest.getPositionId(), tenantId)
                     .orElseThrow(() -> new ResourceNotFoundException("position not found for given positionId: "
                             + employeeCreateRequest.getPositionId() + " and tenant id: " + tenantId));
+
+            if (employeeRepository.findEmployeeByTenantIdAndPositionId(tenantId, position.getPositionId())
+                    .isPresent()) {
+                throw new InvalidOperationException(tenantId);
+            }
 
             newEmployee.setPosition(position);
         }
@@ -115,10 +118,6 @@ public class EmployeeService {
             employee.setEmail(employeeUpdateRequest.getEmail());
         }
 
-        // if (StringUtils.hasText(employeeUpdateRequest.getJobTitle())) {
-        // employee.setJobTitle(employeeUpdateRequest.getJobTitle());
-        // }
-
         Employee savedEmployee = employeeRepository.save(employee);
         return mapToEmployeeResponse(savedEmployee);
     }
@@ -129,21 +128,21 @@ public class EmployeeService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Employee not found for given id:" + employeeId + " and tenant id: " + tenantId));
 
-        // if (StringUtils.hasText(departmentId)) {
-        // Department department =
-        // departmentRespoitory.findByDepartmentIdAndTenantId(departmentId, tenantId)
-        // .orElseThrow(() -> new ResourceNotFoundException(
-        // "department not found for given id:" + departmentId + " and tenant id: " +
-        // tenantId));
-
-        // employee.setDepartment(department);
-        // } else {
-        // employee.setDepartment(null);
-        // }
-
         employee.setUpdatedAt(LocalDateTime.now());
         Employee savedEmployee = employeeRepository.save(employee);
         return mapToEmployeeResponse(savedEmployee);
+    }
+
+    @Transactional(readOnly = true)
+    public List<EmployeeResponse> getAllEmployeeForDepartment(String tenantId, String departmentId) {
+        if (!tenantRepository.findByTenantId(tenantId).isPresent()) {
+            throw new ResourceNotFoundException("Tenant not found for given tenantId: " + tenantId);
+        }
+
+        return employeeRepository.findEmployeeByTenantIdAndDepartmentId(tenantId, departmentId)
+                .stream()
+                .map(this::mapToEmployeeResponse)
+                .collect(Collectors.toList());
     }
 
     private EmployeeResponse mapToEmployeeResponse(Employee employee) {

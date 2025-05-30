@@ -74,4 +74,13 @@ public class EmployeeController {
         EmployeeResponse employeeResponse = employeeService.assignDepartment(tenantId, employeeId, departmentId);
         return new ResponseEntity<>(employeeResponse, HttpStatus.OK);
     }
+
+    @GetMapping("/department/{departmentId}")
+    public ResponseEntity<List<EmployeeResponse>> getEmployeesForDepartment(
+            @PathVariable String tenantId,
+            @PathVariable String departmentId) {
+
+        List<EmployeeResponse> employeeResponses = employeeService.getAllEmployeeForDepartment(tenantId, departmentId);
+        return new ResponseEntity<>(employeeResponses, HttpStatus.OK);
+    }
 }
