@@ -15,7 +15,8 @@ public interface PositionRepository extends Neo4jRepository<Position, Long> {
                         +
                         "MATCH (p)-[rel2:HAS_ROLE]->(r: Role) " +
                         "OPTIONAL MATCH (p)-[rel3:PART_OF]->(d: Department) " +
-                        "RETURN p,rel1,t,rel2,r,rel3,d")
+                        "OPTIONAL MATCH (e: Employee)-[rel4:HOLD_POSITION]->(p) " +
+                        "RETURN p,rel1,t,rel2,r,rel3,d,rel4,e")
         List<Position> findAllByTenantId(String tenantId);
 
         @Query("MATCH (p: Position {positionId: $positionId})-[rel1:ASSOCIATED_WITH]->(t: Tenant {tenantId: $tenantId}) "

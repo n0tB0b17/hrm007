@@ -19,8 +19,8 @@ public class PositionResponse {
     private String departmentId;
     private String departmentName;
 
-    private String assignedEmployeeId;
-    private String assignedEmployeeName;
+    private String employeeId;
+    private String employeeName;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

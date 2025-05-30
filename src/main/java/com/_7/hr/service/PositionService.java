@@ -2,6 +2,7 @@ package com._7.hr.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import com._7.hr.domain.department.Department;
+import com._7.hr.domain.employee.Employee;
 import com._7.hr.domain.position.Position;
 import com._7.hr.domain.role.Role;
 import com._7.hr.domain.tenant.Tenant;
@@ -18,6 +20,7 @@ import com._7.hr.dto.position.PositionResponse;
 import com._7.hr.exception.PositionAlreadyExistsException;
 import com._7.hr.exception.ResourceNotFoundException;
 import com._7.hr.repository.DepartmentRespoitory;
+import com._7.hr.repository.EmployeeRepository;
 import com._7.hr.repository.PositionRepository;
 import com._7.hr.repository.RoleRepository;
 import com._7.hr.repository.TenantRepository;
@@ -28,14 +31,17 @@ public class PositionService {
     private final PositionRepository positionRepository;
     private final RoleRepository roleRepository;
     private final DepartmentRespoitory departmentRespoitory;
+    private final EmployeeRepository employeeRepository;
 
     public PositionService(TenantRepository tenantRepository, PositionRepository positionRepository,
             RoleRepository roleRepository,
-            DepartmentRespoitory departmentRespoitory) {
+            DepartmentRespoitory departmentRespoitory,
+            EmployeeRepository employeeRepository) {
         this.tenantRepository = tenantRepository;
         this.positionRepository = positionRepository;
         this.roleRepository = roleRepository;
         this.departmentRespoitory = departmentRespoitory;
+        this.employeeRepository = employeeRepository;
     }
 
     @Transactional
@@ -72,7 +78,7 @@ public class PositionService {
         position.setUpdatedAt(LocalDateTime.now());
 
         Position savedPosition = positionRepository.save(position);
-        return mapToPositionResponse(savedPosition);
+        return mapToPositionResponse(savedPosition, null);
     }
 
     @Transactional(readOnly = true)
@@ -83,7 +89,15 @@ public class PositionService {
 
         return positionRepository.findAllByTenantId(tenantId)
                 .stream()
-                .map(this::mapToPositionResponse)
+                .map(p -> {
+                    Optional<Employee> assignedEmployee = employeeRepository.findAll().stream()
+                            .filter(e -> e.getTenant() != null && e.getTenant().getTenantId().equals(tenantId)
+                                    &&
+                                    e.getPosition() != null
+                                    && e.getPosition().getPositionId().equals(p.getPositionId()))
+                            .findFirst();
+                    return mapToPositionResponse(p, assignedEmployee.orElse(null));
+                })
                 .collect(Collectors.toList());
     }
 
@@ -97,7 +111,12 @@ public class PositionService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Position not found for given positionId: " + positionId + " for tenantId: " + tenantId));
 
-        return mapToPositionResponse(position);
+        Optional<Employee> employee = employeeRepository.findAll().stream()
+                .filter(e -> e.getTenant() != null && e.getTenant().getTenantId().equals(tenantId)
+                        && e.getPosition() != null && e.getPosition().getPositionId().equals(positionId))
+                .findFirst();
+
+        return mapToPositionResponse(position, employee.orElse(null));
     }
 
     @Transactional
@@ -114,9 +133,7 @@ public class PositionService {
         return false;
     }
 
-    // add update
-
-    private PositionResponse mapToPositionResponse(Position position) {
+    private PositionResponse mapToPositionResponse(Position position, Employee employee) {
         PositionResponse positionResponse = new PositionResponse();
 
         positionResponse.setPositionId(position.getPositionId());
@@ -138,6 +155,11 @@ public class PositionService {
 
         if (position.getTenant() != null) {
             positionResponse.setTenantId(position.getTenant().getTenantId());
+        }
+
+        if (employee != null) {
+            positionResponse.setEmployeeId(employee.getEmployeeId());
+            positionResponse.setEmployeeName(employee.getFirstName() + " " + employee.getLastName());
         }
 
         return positionResponse;

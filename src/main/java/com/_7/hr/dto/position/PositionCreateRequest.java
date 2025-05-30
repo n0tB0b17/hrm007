@@ -16,6 +16,8 @@ public class PositionCreateRequest {
 
     @NotNull(message = "roleId cannot be null")
     private String roleId;
+
+    @NotNull(message = "departmentId cannot be null")
     private String departmentId;
 
     private boolean isOpen = true;
