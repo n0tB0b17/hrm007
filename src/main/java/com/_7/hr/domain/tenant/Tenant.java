@@ -35,6 +35,12 @@ public class Tenant {
     @Property("companyContactNumber")
     private String companyContactNumber;
 
+    @Property("adminUserName")
+    private String adminUserName;
+
+    @Property("adminPassword")
+    private String adminPassword;
+
     @Property("status")
     private String status;
 
