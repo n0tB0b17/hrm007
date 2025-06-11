@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -20,9 +21,11 @@ import com._7.hr.repository.TenantRepository;
 @Service
 public class TenantService {
     private final TenantRepository tenantRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public TenantService(TenantRepository tenantRepository) {
+    public TenantService(TenantRepository tenantRepository, PasswordEncoder passwordEncoder) {
         this.tenantRepository = tenantRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -41,6 +44,9 @@ public class TenantService {
                 tenantCreateRequest.getCompanyContactNumber() != null ? tenantCreateRequest.getCompanyContactNumber()
                         : "");
         newTenant.setStatus(tenantCreateRequest.getStatus() != null ? tenantCreateRequest.getStatus() : "ACTIVE");
+
+        newTenant.setAdminUserName(tenantCreateRequest.getAdminUserName());
+        newTenant.setAdminPassword(passwordEncoder.encode(tenantCreateRequest.getAdminPassword()));
         newTenant.setLogoURL(tenantCreateRequest.getLogoURL());
         newTenant.setPrimaryColor(tenantCreateRequest.getPrimaryColor());
         newTenant.setSecondaryColor(tenantCreateRequest.getSecondaryColor());

@@ -2,6 +2,8 @@ package com._7.hr.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +29,7 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/v1/admin/tenants")
 @Tag(name = "Tenant APIs", description = "this contains all required APIs for tenant related services")
 public class TenantController {
+    private static final Logger logger = LoggerFactory.getLogger(TenantController.class);
     private final TenantService tenantService;
 
     public TenantController(TenantService tenantService) {
@@ -38,6 +41,7 @@ public class TenantController {
     @ApiResponse(responseCode = "201 CREATED", description = "Tenant created")
     @ApiResponse(responseCode = "409 CONFLICT", description = "Tenant already exists")
     public ResponseEntity<TenantResponse> registerTenant(@Valid @RequestBody TenantCreateRequest tenantCreateRequest) {
+        logger.info("This is tenant create request...");
         TenantResponse tenantResponse = tenantService.registerTenant(tenantCreateRequest);
         return new ResponseEntity<>(tenantResponse, HttpStatus.CREATED);
     }
