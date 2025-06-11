@@ -1,6 +1,7 @@
 package com._7.hr.security;
 
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
@@ -45,10 +46,18 @@ public class JWTokenProvider {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + jwtExpirationInMs);
 
-        authentication.getAuthorities().stream()
+        List<String> roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-        return "";
+
+        return Jwts.builder()
+                .subject(username)
+                .claim("roles", roles)
+                .claim("tid", username.split("/")[0])
+                .issuedAt(new Date())
+                .expiration(expireDate)
+                .signWith(jwtSecretKey, Jwts.SIG.HS256)
+                .compact();
     }
 
     public String getUsernameFromToken(String token) {
