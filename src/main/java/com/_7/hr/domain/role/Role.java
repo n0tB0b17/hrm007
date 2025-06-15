@@ -1,6 +1,8 @@
 package com._7.hr.domain.role;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -33,6 +35,9 @@ public class Role {
 
     @Property("description")
     private String description;
+
+    @Property("permission")
+    private Set<String> permissions = new HashSet<>();
 
     @CreatedDate
     private LocalDateTime createdAt;
