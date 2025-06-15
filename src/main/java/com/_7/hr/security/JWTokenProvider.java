@@ -34,8 +34,8 @@ public class JWTokenProvider {
         if (jwtSecretString == null || jwtSecretString.length() < 32) {
             logger.warn(
                     "WARNING: JWT Secret is not configured or too short. Using a temporary insecure key for development.");
-
-            jwtSecretKey = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256);
+            jwtSecretKey = Jwts.SIG.HS256.key().build();
+            // jwtSecretKey = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256);
         } else {
             jwtSecretKey = Keys.hmacShaKeyFor(jwtSecretString.getBytes());
         }

@@ -38,6 +38,7 @@ public class JwtAuthenticationFilters extends OncePerRequestFilter {
             if (StringUtils.hasText(token) && jwTokenProvider.validateToken(token)) {
                 String username = jwTokenProvider.getUsernameFromToken(token);
                 Claims claims = jwTokenProvider.getAllClaimsFromToken(token);
+                @SuppressWarnings("unchecked")
                 List<String> roles = claims.get("roles", List.class);
                 List<GrantedAuthority> authorities = roles.stream().map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
