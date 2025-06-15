@@ -44,13 +44,7 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    // @Autowired
-    // public void configureGlobal(AuthenticationManagerBuilder auth) throws
-    // Exception {
-    // auth.userDetailsService(tenantAdminUserDetailService)
-    // .passwordEncoder(passwordEncoder());
-    // }
-
+    @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(tenantAdminUserDetailService);
@@ -70,7 +64,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/admin/tenants").permitAll()
                         .requestMatchers("/api/v1/tenant/{tenantId}/auth/login").permitAll()
 
-                        // .requestMatchers("").authenticated()
+                        .requestMatchers("/api/v1/tenant/{tenantId}/employees/**").authenticated()
+                        .requestMatchers("/api/v1/tenant/{tenantId}/departments/**").authenticated()
+                        .requestMatchers("/api/v1/tenant/{tenantId}/positions/**").authenticated()
+                        .requestMatchers("/api/v1/tenant/{tenantId}/roles/**").authenticated()
                         .anyRequest().authenticated());
 
         http.addFilterBefore(jwtAuthenticationFilters(), UsernamePasswordAuthenticationFilter.class);
