@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -27,12 +28,14 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final TenantRepository tenantRepository;
     private final PositionRepository positionRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public EmployeeService(EmployeeRepository employeeRepository, TenantRepository tenantRepository,
-            PositionRepository positionRepository) {
+            PositionRepository positionRepository, PasswordEncoder passwordEncoder) {
         this.employeeRepository = employeeRepository;
         this.tenantRepository = tenantRepository;
         this.positionRepository = positionRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -50,10 +53,17 @@ public class EmployeeService {
         newEmployee.setEmployeeId(UUID.randomUUID().toString());
         newEmployee.setFirstName(employeeCreateRequest.getFirstName());
         newEmployee.setLastName(employeeCreateRequest.getLastName());
-        newEmployee.setEmail(employeeCreateRequest.getEmail());
+        newEmployee.setEmail(employeeCreateRequest.getEmail().toLowerCase());
         newEmployee.setHireDate(employeeCreateRequest.getHireDate());
         newEmployee.setCreatedAt(LocalDateTime.now());
         newEmployee.setUpdatedAt(LocalDateTime.now());
+
+        if (StringUtils.hasText(employeeCreateRequest.getPassword())) {
+            newEmployee.setPassword(passwordEncoder.encode(employeeCreateRequest.getPassword()));
+        } else {
+            throw new InvalidOperationException("Password is required to create user, but password is null or empty");
+        }
+
         newEmployee.setTenant(tenant);
 
         if (StringUtils.hasText(employeeCreateRequest.getPositionId())) {

@@ -39,6 +39,9 @@ public class Employee {
     @Property("email")
     private String email;
 
+    @Property("password")
+    private String password;
+
     @Property("hireDate")
     private LocalDate hireDate;
 

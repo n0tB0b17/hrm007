@@ -19,5 +19,6 @@ public class EmployeeUpdateRequest {
     // maximum of 20")
     // private String jobTitle;
 
+    private String password;
     private String positionId;
 }

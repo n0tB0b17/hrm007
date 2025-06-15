@@ -16,5 +16,5 @@ public class RoleCreateRequest {
     @Size(max = 255, message = "maximum size for description is 255")
     private String description;
 
-    private Set<String> permission = new HashSet<>();
+    private Set<String> permissions = new HashSet<>();
 }

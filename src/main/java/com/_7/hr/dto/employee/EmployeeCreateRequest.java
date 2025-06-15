@@ -22,6 +22,9 @@ public class EmployeeCreateRequest {
     @Email(message = "email should be from a valid provider")
     private String email;
 
+    @NotBlank(message = "password cannot be blanked")
+    private String password;
+
     // @NotBlank(message = "job title cannot be blanked")
     // @Size(min = 2, max = 20, message = "job title should be minimum of 2 and
     // maximum of 20")

@@ -23,6 +23,11 @@ public interface EmployeeRepository extends Neo4jRepository<Employee, Long> {
                         "RETURN e, ref0, t, dRel, d")
         Optional<Employee> findByEmployeeIdAndTenantId(String employeeId, String tenantId);
 
+        @Query("MATCH (e: Employee {email: $email})-[ref0:WORKS_FOR]->(t: Tenant {tenantId: $tenantId}) " +
+                        EMPLOYEE_POSITION_OPTIONAL_MATCH +
+                        " RETURN e,ref0,t,ref1,p,ref2,r,ref3,d")
+        Optional<Employee> findByEmailAndTenantId(String email, String tenantId);
+
         @Query("MATCH (e: Employee {email: $email})-[:WORKS_FOR]->(t:Tenant {tenantId: $tenantId}) RETURN COUNT(e) > 0")
         boolean existsByEmailAndTenantId(String email, String tenantId);
 

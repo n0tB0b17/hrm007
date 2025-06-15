@@ -1,6 +1,7 @@
 package com._7.hr.service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,6 +43,10 @@ public class RoleService {
         role.setRoleId(UUID.randomUUID().toString());
         role.setName(roleCreateRequest.getName());
         role.setDescription(roleCreateRequest.getDescription());
+        if (roleCreateRequest.getPermissions() != null) {
+            role.setPermissions(new HashSet<>(roleCreateRequest.getPermissions()));
+        }
+
         role.setCreatedAt(LocalDateTime.now());
         role.setUpdatedAt(LocalDateTime.now());
         role.setTenant(tenant);

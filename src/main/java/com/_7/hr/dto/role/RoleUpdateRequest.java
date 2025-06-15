@@ -1,5 +1,8 @@
 package com._7.hr.dto.role;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -10,4 +13,6 @@ public class RoleUpdateRequest {
 
     @Size(max = 255, message = "maximum size for description is 255")
     private String description;
+
+    private Set<String> permissions = new HashSet<>();
 }
