@@ -9,11 +9,13 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com._7.hr.domain.tenant.Tenant;
 import com._7.hr.repository.TenantRepository;
 
+@Service("tenantAdminUserDetailService")
 public class TenantAdminUserDetailService implements UserDetailsService {
     private final TenantRepository tenantRepository;
 

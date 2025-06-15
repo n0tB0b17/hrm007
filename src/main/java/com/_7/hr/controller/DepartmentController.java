@@ -2,6 +2,7 @@ package com._7.hr.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,7 @@ public class DepartmentController {
     }
 
     @PostMapping
+    @PreAuthorize("#tenantId === authentication.principal.claims['tid']")
     public ResponseEntity<DepartmentResponse> createDepartment(
             @PathVariable String tenantId,
             @Valid @RequestBody DepartmentCreateRequest departmentCreateRequest) {
@@ -58,7 +60,7 @@ public class DepartmentController {
             @PathVariable String departmentId) {
         boolean deleteResponse = departmentService.deleteDepartmentById(tenantId, departmentId);
         if (!deleteResponse) {
-            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
         return ResponseEntity.noContent().build();

@@ -8,7 +8,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +21,8 @@ import com._7.hr.security.JwtAuthenticationEntryPoint;
 import com._7.hr.security.JwtAuthenticationFilters;
 
 @Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     @Autowired
     @Qualifier("tenantAdminUserDetailService")
@@ -38,7 +42,7 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @Bean
+    @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(tenantAdminUserDetailService)
                 .passwordEncoder(passwordEncoder());
@@ -56,7 +60,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/admin/tenants").permitAll()
                         .requestMatchers("/api/v1/tenant/{tenantId}/auth/login").permitAll()
 
-                        .requestMatchers("").authenticated()
+                        // .requestMatchers("").authenticated()
                         .anyRequest().authenticated());
 
         http.addFilterBefore(jwtAuthenticationFilters(), UsernamePasswordAuthenticationFilter.class);
